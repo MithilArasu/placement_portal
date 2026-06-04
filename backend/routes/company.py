@@ -3,8 +3,12 @@ from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 
 from utils.decorators import company_required
+from tasks.celery_tasks import (
+    send_drive_notification
+)
 
 from extensions import db
+from tasks.celery_tasks import send_drive_notification
 
 from models import (
     User,
@@ -65,6 +69,9 @@ def create_drive():
 
     db.session.add(drive)
     db.session.commit()
+
+    
+    send_drive_notification.delay(drive.title)
 
     return {
         "message": "Drive created successfully",

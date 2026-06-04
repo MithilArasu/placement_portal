@@ -1,17 +1,16 @@
 from flask import Blueprint
 
-from utils.decorators import student_required
-
-from models import Drive
 from flask_jwt_extended import get_jwt_identity
+
+from utils.decorators import student_required
 
 from extensions import db
 
 from models import (
-    User,
     Student,
     Drive,
-    Application
+    Application,
+    Placement
 )
 
 student_bp = Blueprint(
@@ -50,6 +49,8 @@ def get_drives():
         })
 
     return data
+
+
 @student_bp.route("/apply/<int:drive_id>", methods=["POST"])
 @student_required
 def apply_drive(drive_id):
@@ -59,11 +60,15 @@ def apply_drive(drive_id):
     student = Student.query.filter_by(
         user_id=user_id
     ).first()
-
+    
     if not student:
         return {
             "error": "Student not found"
         }, 404
+    if student.is_blacklisted:
+        return {
+            "error": "Student is blacklisted"
+    }, 403
 
     drive = Drive.query.get(drive_id)
 
@@ -94,6 +99,8 @@ def apply_drive(drive_id):
         "message": "Application submitted successfully",
         "application_id": application.id
     }, 201
+
+
 @student_bp.route("/applications")
 @student_required
 def my_applications():
@@ -120,6 +127,33 @@ def my_applications():
             "application_id": application.id,
             "drive_title": drive.title,
             "status": application.status
+        })
+
+    return data
+
+
+@student_bp.route("/placements")
+@student_required
+def my_placements():
+
+    user_id = get_jwt_identity()
+
+    student = Student.query.filter_by(
+        user_id=user_id
+    ).first()
+
+    placements = Placement.query.filter_by(
+        student_id=student.id
+    ).all()
+
+    data = []
+
+    for placement in placements:
+
+        data.append({
+            "company_id": placement.company_id,
+            "position": placement.position,
+            "salary": placement.salary
         })
 
     return data
