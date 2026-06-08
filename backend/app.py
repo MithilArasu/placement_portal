@@ -4,6 +4,7 @@ from config import Config
 from extensions import db, jwt, migrate
 from routes.admin import admin_bp
 from routes.company import company_bp
+from flask_cors import CORS
 from routes.student import student_bp
 from models import (
     User,
@@ -19,7 +20,7 @@ from routes.auth import auth_bp
 
 def create_app():
     app = Flask(__name__)
-
+    CORS(app)
     app.config.from_object(Config)
 
     db.init_app(app)

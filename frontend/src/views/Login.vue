@@ -17,6 +17,12 @@
     <button @click="login">
       Login
     </button>
+    <p>
+      New User?
+      <router-link to="/register">
+        Register Here
+      </router-link>
+    </p>
 
   </div>
 </template>
