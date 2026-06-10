@@ -129,6 +129,29 @@ def approve_drive(drive_id):
     return {
         "message": "Drive approved successfully"
     }
+@admin_bp.route("/drives")
+@admin_required
+def get_drives():
+
+    drives = Drive.query.all()
+
+    data = []
+
+    for drive in drives:
+
+        company = Company.query.get(
+            drive.company_id
+        )
+
+        data.append({
+            "id": drive.id,
+            "title": drive.title,
+            "company_name": company.company_name,
+            "salary": drive.salary,
+            "status": drive.status
+        })
+
+    return data
 
 
 @admin_bp.route("/students")

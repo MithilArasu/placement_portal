@@ -1,160 +1,168 @@
 <template>
   <div class="container">
 
-    <h1>Admin Dashboard</h1>
+```
+<h1>Admin Dashboard</h1>
 
-    <div class="card">
-      <h3>Total Students</h3>
-      <p>{{ stats.total_students }}</p>
-    </div>
+<div class="card">
+  <h3>Total Students</h3>
+  <p>{{ stats.total_students }}</p>
+</div>
 
-    <div class="card">
-      <h3>Total Companies</h3>
-      <p>{{ stats.total_companies }}</p>
-    </div>
+<div class="card">
+  <h3>Total Companies</h3>
+  <p>{{ stats.total_companies }}</p>
+</div>
 
-    <div class="card">
-      <h3>Total Drives</h3>
-      <p>{{ stats.total_drives }}</p>
-    </div>
+<div class="card">
+  <h3>Total Drives</h3>
+  <p>{{ stats.total_drives }}</p>
+</div>
 
-    <div class="card">
-      <h3>Total Applications</h3>
-      <p>{{ stats.total_applications }}</p>
-    </div>
+<div class="card">
+  <h3>Total Applications</h3>
+  <p>{{ stats.total_applications }}</p>
+</div>
 
-    <div class="actions">
-      <button @click="loadStudents">
-        Students
-      </button>
+<div class="actions">
+  <button @click="loadStudents">
+    Students
+  </button>
 
-      <button @click="loadCompanies">
-        Companies
-      </button>
+  <button @click="loadCompanies">
+    Companies
+  </button>
 
-      <button @click="loadPlacements">
-        Placements
-      </button>
-    </div>
+  <button @click="loadDrives">
+    Drives
+  </button>
 
-    <table v-if="records.length > 0">
+  <button @click="loadPlacements">
+    Placements
+  </button>
+</div>
 
-      <thead>
-        <tr>
+<table v-if="records.length > 0">
 
-          <th
-            v-for="key in headers"
-            :key="key"
-          >
-            {{ key }}
-          </th>
+  <thead>
+    <tr>
 
-          <th
-            v-if="
-              currentView === 'companies' ||
-              currentView === 'students'
-            "
-          >
-            Actions
-          </th>
+      <th
+        v-for="key in headers"
+        :key="key"
+      >
+        {{ key }}
+      </th>
 
-        </tr>
-      </thead>
+      <th
+        v-if="
+          currentView === 'students' ||
+          currentView === 'companies' ||
+          currentView === 'drives'
+        "
+      >
+        Actions
+      </th>
 
-      <tbody>
+    </tr>
+  </thead>
 
-        <tr
-          v-for="(record,index) in records"
-          :key="index"
+  <tbody>
+
+    <tr
+      v-for="(record,index) in records"
+      :key="index"
+    >
+
+      <td
+        v-for="key in headers"
+        :key="key"
+      >
+        {{ record[key] }}
+      </td>
+
+      <!-- Student Actions -->
+
+      <td v-if="currentView === 'students'">
+
+        <button
+          v-if="!record.is_blacklisted"
+          @click="blacklistStudent(record.id)"
         >
+          Blacklist
+        </button>
 
-          <td
-            v-for="key in headers"
-            :key="key"
-          >
-            {{ record[key] }}
-          </td>
+        <span
+          v-if="record.is_blacklisted"
+        >
+          Blacklisted
+        </span>
 
-          <!-- Company Actions -->
+      </td>
 
-          <td v-if="currentView === 'companies'">
+      <!-- Company Actions -->
 
-            <button
-              v-if="
-                record.approval_status === 'PENDING'
-              "
-              @click="
-                approveCompany(record.id)
-              "
-            >
-              Approve
-            </button>
+      <td v-if="currentView === 'companies'">
 
-            <button
-              v-if="
-                record.approval_status === 'PENDING'
-              "
-              @click="
-                rejectCompany(record.id)
-              "
-            >
-              Reject
-            </button>
+        <button
+          v-if="record.approval_status === 'PENDING'"
+          @click="approveCompany(record.id)"
+        >
+          Approve
+        </button>
 
-            <span
-              v-if="
-                record.approval_status === 'APPROVED'
-              "
-            >
-              Approved
-            </span>
+        <button
+          v-if="record.approval_status === 'PENDING'"
+          @click="rejectCompany(record.id)"
+        >
+          Reject
+        </button>
 
-            <span
-              v-if="
-                record.approval_status === 'REJECTED'
-              "
-            >
-              Rejected
-            </span>
+        <span
+          v-if="record.approval_status === 'APPROVED'"
+        >
+          Approved
+        </span>
 
-          </td>
+        <span
+          v-if="record.approval_status === 'REJECTED'"
+        >
+          Rejected
+        </span>
 
-          <!-- Student Actions -->
+      </td>
 
-          <td v-if="currentView === 'students'">
+      <!-- Drive Actions -->
 
-            <button
-              v-if="
-                !record.is_blacklisted
-              "
-              @click="
-                blacklistStudent(record.id)
-              "
-            >
-              Blacklist
-            </button>
+      <td v-if="currentView === 'drives'">
 
-            <span
-              v-if="
-                record.is_blacklisted
-              "
-            >
-              Blacklisted
-            </span>
+        <button
+          v-if="record.status === 'PENDING'"
+          @click="approveDrive(record.id)"
+        >
+          Approve
+        </button>
 
-          </td>
+        <span
+          v-if="record.status === 'APPROVED'"
+        >
+          Approved
+        </span>
 
-        </tr>
+      </td>
 
-      </tbody>
+    </tr>
 
-    </table>
+  </tbody>
 
-    <br>
+</table>
 
-    <button @click="logout">
-      Logout
-    </button>
+<br>
+
+<button @click="logout">
+  Logout
+</button>
+```
 
   </div>
 </template>
@@ -218,11 +226,8 @@ export default {
         "students";
 
       if(this.records.length > 0){
-
         this.headers =
-          Object.keys(
-            this.records[0]
-          );
+          Object.keys(this.records[0]);
       }
     },
 
@@ -249,11 +254,36 @@ export default {
         "companies";
 
       if(this.records.length > 0){
-
         this.headers =
-          Object.keys(
-            this.records[0]
-          );
+          Object.keys(this.records[0]);
+      }
+    },
+
+    async loadDrives() {
+
+      const token =
+        localStorage.getItem("token");
+
+      const response =
+        await api.get(
+          "/admin/drives",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+      this.records =
+        response.data;
+
+      this.currentView =
+        "drives";
+
+      if(this.records.length > 0){
+        this.headers =
+          Object.keys(this.records[0]);
       }
     },
 
@@ -280,11 +310,8 @@ export default {
         "placements";
 
       if(this.records.length > 0){
-
         this.headers =
-          Object.keys(
-            this.records[0]
-          );
+          Object.keys(this.records[0]);
       }
     },
 
@@ -304,9 +331,7 @@ export default {
         }
       );
 
-      alert(
-        "Company Approved"
-      );
+      alert("Company Approved");
 
       this.loadCompanies();
     },
@@ -327,11 +352,30 @@ export default {
         }
       );
 
-      alert(
-        "Company Rejected"
-      );
+      alert("Company Rejected");
 
       this.loadCompanies();
+    },
+
+    async approveDrive(driveId) {
+
+      const token =
+        localStorage.getItem("token");
+
+      await api.put(
+        `/admin/drive/${driveId}/approve`,
+        {},
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+      alert("Drive Approved");
+
+      this.loadDrives();
     },
 
     async blacklistStudent(studentId) {
@@ -350,9 +394,7 @@ export default {
         }
       );
 
-      alert(
-        "Student Blacklisted"
-      );
+      alert("Student Blacklisted");
 
       this.loadStudents();
     },
@@ -363,7 +405,6 @@ export default {
 
       this.$router.push("/");
     }
-
   }
 };
 </script>
