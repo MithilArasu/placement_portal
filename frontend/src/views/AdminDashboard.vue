@@ -1,168 +1,173 @@
 <template>
   <div class="container">
 
-```
-<h1>Admin Dashboard</h1>
+    <h1>Admin Dashboard</h1>
 
-<div class="card">
-  <h3>Total Students</h3>
-  <p>{{ stats.total_students }}</p>
-</div>
+    <div class="card">
+      <h3>Total Students</h3>
+      <p>{{ stats.total_students }}</p>
+    </div>
 
-<div class="card">
-  <h3>Total Companies</h3>
-  <p>{{ stats.total_companies }}</p>
-</div>
+    <div class="card">
+      <h3>Total Companies</h3>
+      <p>{{ stats.total_companies }}</p>
+    </div>
 
-<div class="card">
-  <h3>Total Drives</h3>
-  <p>{{ stats.total_drives }}</p>
-</div>
+    <div class="card">
+      <h3>Total Drives</h3>
+      <p>{{ stats.total_drives }}</p>
+    </div>
 
-<div class="card">
-  <h3>Total Applications</h3>
-  <p>{{ stats.total_applications }}</p>
-</div>
+    <div class="card">
+      <h3>Total Applications</h3>
+      <p>{{ stats.total_applications }}</p>
+    </div>
 
-<div class="actions">
-  <button @click="loadStudents">
-    Students
-  </button>
+    <div class="actions">
 
-  <button @click="loadCompanies">
-    Companies
-  </button>
+      <button @click="loadStudents">
+        Students
+      </button>
 
-  <button @click="loadDrives">
-    Drives
-  </button>
+      <button @click="loadCompanies">
+        Companies
+      </button>
 
-  <button @click="loadPlacements">
-    Placements
-  </button>
-</div>
+      <button @click="loadDrives">
+        Drives
+      </button>
 
-<table v-if="records.length > 0">
+      <button @click="loadPlacements">
+        Placements
+      </button>
 
-  <thead>
-    <tr>
+      <button @click="exportPlacements">
+        Export Placements
+      </button>
 
-      <th
-        v-for="key in headers"
-        :key="key"
-      >
-        {{ key }}
-      </th>
+    </div>
 
-      <th
-        v-if="
-          currentView === 'students' ||
-          currentView === 'companies' ||
-          currentView === 'drives'
-        "
-      >
-        Actions
-      </th>
+    <table v-if="records.length > 0">
 
-    </tr>
-  </thead>
+      <thead>
+        <tr>
 
-  <tbody>
+          <th
+            v-for="key in headers"
+            :key="key"
+          >
+            {{ key }}
+          </th>
 
-    <tr
-      v-for="(record,index) in records"
-      :key="index"
-    >
+          <th
+            v-if="
+              currentView === 'students' ||
+              currentView === 'companies' ||
+              currentView === 'drives'
+            "
+          >
+            Actions
+          </th>
 
-      <td
-        v-for="key in headers"
-        :key="key"
-      >
-        {{ record[key] }}
-      </td>
+        </tr>
+      </thead>
 
-      <!-- Student Actions -->
+      <tbody>
 
-      <td v-if="currentView === 'students'">
-
-        <button
-          v-if="!record.is_blacklisted"
-          @click="blacklistStudent(record.id)"
+        <tr
+          v-for="(record,index) in records"
+          :key="index"
         >
-          Blacklist
-        </button>
 
-        <span
-          v-if="record.is_blacklisted"
-        >
-          Blacklisted
-        </span>
+          <td
+            v-for="key in headers"
+            :key="key"
+          >
+            {{ record[key] }}
+          </td>
 
-      </td>
+          <!-- Student Actions -->
 
-      <!-- Company Actions -->
+          <td v-if="currentView === 'students'">
 
-      <td v-if="currentView === 'companies'">
+            <button
+              v-if="!record.is_blacklisted"
+              @click="blacklistStudent(record.id)"
+            >
+              Blacklist
+            </button>
 
-        <button
-          v-if="record.approval_status === 'PENDING'"
-          @click="approveCompany(record.id)"
-        >
-          Approve
-        </button>
+            <button
+              v-if="record.is_blacklisted"
+              @click="unblacklistStudent(record.id)"
+            >
+              Unblacklist
+            </button>
 
-        <button
-          v-if="record.approval_status === 'PENDING'"
-          @click="rejectCompany(record.id)"
-        >
-          Reject
-        </button>
+          </td>
 
-        <span
-          v-if="record.approval_status === 'APPROVED'"
-        >
-          Approved
-        </span>
+          <!-- Company Actions -->
 
-        <span
-          v-if="record.approval_status === 'REJECTED'"
-        >
-          Rejected
-        </span>
+          <td v-if="currentView === 'companies'">
 
-      </td>
+            <button
+              v-if="record.approval_status === 'PENDING'"
+              @click="approveCompany(record.id)"
+            >
+              Approve
+            </button>
 
-      <!-- Drive Actions -->
+            <button
+              v-if="record.approval_status === 'PENDING'"
+              @click="rejectCompany(record.id)"
+            >
+              Reject
+            </button>
 
-      <td v-if="currentView === 'drives'">
+            <span
+              v-if="record.approval_status === 'APPROVED'"
+            >
+              Approved
+            </span>
 
-        <button
-          v-if="record.status === 'PENDING'"
-          @click="approveDrive(record.id)"
-        >
-          Approve
-        </button>
+            <span
+              v-if="record.approval_status === 'REJECTED'"
+            >
+              Rejected
+            </span>
 
-        <span
-          v-if="record.status === 'APPROVED'"
-        >
-          Approved
-        </span>
+          </td>
 
-      </td>
+          <!-- Drive Actions -->
 
-    </tr>
+          <td v-if="currentView === 'drives'">
 
-  </tbody>
+            <button
+              v-if="record.status === 'PENDING'"
+              @click="approveDrive(record.id)"
+            >
+              Approve
+            </button>
 
-</table>
+            <span
+              v-if="record.status === 'APPROVED'"
+            >
+              Approved
+            </span>
 
-<br>
+          </td>
 
-<button @click="logout">
-  Logout
-</button>
-```
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <br>
+
+    <button @click="logout">
+      Logout
+    </button>
 
   </div>
 </template>
@@ -399,12 +404,71 @@ export default {
       this.loadStudents();
     },
 
+    async unblacklistStudent(studentId) {
+
+      const token =
+        localStorage.getItem("token");
+
+      await api.put(
+        `/admin/student/${studentId}/unblacklist`,
+        {},
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+      alert("Student Unblacklisted");
+
+      this.loadStudents();
+    },
+
+    async exportPlacements() {
+
+      const token =
+        localStorage.getItem("token");
+
+      const response =
+        await api.get(
+          "/admin/export/placements",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            },
+            responseType: "blob"
+          }
+        );
+
+      const url =
+        window.URL.createObjectURL(
+          new Blob([response.data])
+        );
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "placements.csv";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+    },
+
     logout() {
 
       localStorage.clear();
 
       this.$router.push("/");
     }
+
   }
 };
 </script>
@@ -440,5 +504,9 @@ table{
 th,td{
   border:1px solid #ddd;
   padding:10px;
+}
+
+span{
+  font-weight:bold;
 }
 </style>

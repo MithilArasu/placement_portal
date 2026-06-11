@@ -10,7 +10,8 @@ from models import (
     Student,
     Drive,
     Application,
-    Placement
+    Placement,
+    Company
 )
 
 student_bp = Blueprint(
@@ -150,8 +151,12 @@ def my_placements():
 
     for placement in placements:
 
+        company = Company.query.get(
+            placement.company_id
+        )
+
         data.append({
-            "company_id": placement.company_id,
+            "company_name": company.company_name,
             "position": placement.position,
             "salary": placement.salary
         })
